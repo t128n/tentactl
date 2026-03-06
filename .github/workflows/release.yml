@@ -10,10 +10,39 @@ on:
       - "pnpm-lock.yaml"
       - "src/**"
 
+permissions:
+  contents: read
+
 jobs:
+  check-maintainer:
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ steps.check.outputs.allowed }}
+    steps:
+      - id: check
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        with:
+          script: |
+            const username = process.env.GITHUB_TRIGGERING_ACTOR || context.actor
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username,
+            })
+
+            const allowed = ['admin', 'maintain', 'write'].includes(data.permission)
+
+            core.info(`Actor ${username} has ${data.permission} permission`)
+            core.setOutput('allowed', allowed ? 'true' : 'false')
+
   release:
+    needs: check-maintainer
+    if: needs.check-maintainer.outputs.allowed == 'true'
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
