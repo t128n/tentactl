@@ -185,7 +185,7 @@ export async function validateToken(
 // Interactive prompts
 // ---------------------------------------------------------------------------
 
-/** Still used by `auth login` where no config file is available yet. */
+/** Still used by `login` where no config file is available yet. */
 export async function promptForEndpoint(): Promise<string> {
     const choice = await select({
         message: "Which GitHub instance?",

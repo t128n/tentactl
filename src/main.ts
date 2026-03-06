@@ -1,6 +1,6 @@
 import { defineCommand, runMain } from "citty";
 import packageJson from "#/package.json";
-import { login, logout, status, pushCommand, pullCommand, diffCommand } from "./commands";
+import { login, logout, whoami, pushCommand, pullCommand, diffCommand } from "./commands";
 
 const main = defineCommand({
     meta: {
@@ -12,23 +12,17 @@ const main = defineCommand({
         push: pushCommand,
         pull: pullCommand,
         diff: diffCommand,
-
-        auth: defineCommand({
-            meta: { name: "auth", description: "Manage authentication" },
-            subCommands: {
-                login: defineCommand({
-                    meta: { name: "login", description: "Save a GitHub PAT to .env.local" },
-                    run() { return login(); },
-                }),
-                logout: defineCommand({
-                    meta: { name: "logout", description: "Remove the GitHub PAT from .env.local" },
-                    run() { return logout(); },
-                }),
-                status: defineCommand({
-                    meta: { name: "status", description: "Check authentication status" },
-                    run() { return status(); },
-                }),
-            },
+        login: defineCommand({
+            meta: { name: "login", description: "Save a GitHub PAT to .env.local" },
+            run() { return login(); },
+        }),
+        logout: defineCommand({
+            meta: { name: "logout", description: "Remove the GitHub PAT from .env.local" },
+            run() { return logout(); },
+        }),
+        whoami: defineCommand({
+            meta: { name: "whoami", description: "Check authentication status" },
+            run() { return whoami(); },
         }),
     },
 });

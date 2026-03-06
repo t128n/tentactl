@@ -78,7 +78,7 @@ You need:
 4. Apply changes back to GitHub.
 
 ```sh
-tentactl auth login
+tentactl login
 tentactl pull
 tentactl diff
 tentactl push
@@ -124,9 +124,9 @@ tentactl push --config .github/tentactl.config.ts
 Use these commands to manage your token:
 
 ```sh
-tentactl auth login
-tentactl auth status
-tentactl auth logout
+tentactl login
+tentactl whoami
+tentactl logout
 ```
 
 ## Configuration

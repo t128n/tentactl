@@ -1,7 +1,7 @@
 import { consola } from "consola";
 import { readTokenFromEnvLocal, validateToken } from "@/lib/auth";
 
-export async function status() {
+export async function whoami() {
     const envToken = process.env.GH_TOKEN;
     const fileToken = await readTokenFromEnvLocal(process.cwd());
 
