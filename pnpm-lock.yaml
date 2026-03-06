@@ -26,9 +26,6 @@ importers:
       open:
         specifier: ^11.0.0
         version: 11.0.0
-      tentactl:
-        specifier: workspace:*
-        version: 'link:'
     devDependencies:
       '@octokit/plugin-rest-endpoint-methods':
         specifier: ^17.0.0
