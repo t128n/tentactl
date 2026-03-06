@@ -1,23 +1,23 @@
 {
 	"name": "tentactl",
-	"version": "0.0.1",
-	"description": "Placeholder release to reserve the package name. Full CLI coming soon.",
-	"license": "MIT",
+	"version": "0.0.2",
+	"description": "Deterministic repository management for GitHub.",
 	"homepage": "https://github.com/t128n/tentactl",
 	"bugs": {
 		"url": "https://github.com/t128n/tentactl/issues"
 	},
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/t128n/tentactl"
+	},
+	"bin": {
+		"tentactl": "./dist/main.mjs"
 	},
 	"files": [
 		"dist",
 		"README.md"
 	],
-	"bin": {
-		"tentactl": "./dist/main.mjs"
-	},
 	"type": "module",
 	"scripts": {
 		"dev": "tsx src/main.ts",
