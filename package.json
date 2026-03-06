@@ -1,7 +1,7 @@
 {
 	"name": "tentactl",
 	"version": "0.0.2",
-	"description": "Placeholder release to reserve the package name. Full CLI coming soon.",
+	"description": "Deterministic repository management for GitHub.",
 	"homepage": "https://github.com/t128n/tentactl",
 	"bugs": {
 		"url": "https://github.com/t128n/tentactl/issues"
