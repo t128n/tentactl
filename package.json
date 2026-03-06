@@ -1,0 +1,50 @@
+{
+	"name": "tentactl",
+	"version": "0.0.1",
+	"description": "Placeholder release to reserve the package name. Full CLI coming soon.",
+	"license": "MIT",
+	"homepage": "https://github.com/t128n/tentactl",
+	"bugs": {
+		"url": "https://github.com/t128n/tentactl/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/t128n/tentactl"
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"bin": {
+		"tentactl": "./dist/main.mjs"
+	},
+	"type": "module",
+	"scripts": {
+		"dev": "tsx src/main.ts",
+		"build": "tsdown src/main.ts",
+		"lint": "oxlint",
+		"format": "oxfmt --write",
+		"test": "vitest --passWithNoTests",
+		"prepare": "pnpm build"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.1.0",
+		"@octokit/rest": "^22.0.1",
+		"citty": "^0.2.1",
+		"conf": "^12.0.0",
+		"consola": "^3.4.2",
+		"open": "^11.0.0"
+	},
+	"devDependencies": {
+		"@octokit/plugin-rest-endpoint-methods": "^17.0.0",
+		"@types/node": "^25.3.5",
+		"automd": "^0.4.3",
+		"oxfmt": "^0.36.0",
+		"oxlint": "^1.51.0",
+		"pathe": "^2.0.3",
+		"tsdown": "^0.21.0",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.18"
+	}
+}
