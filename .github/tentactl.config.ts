@@ -1,4 +1,4 @@
-import { defineConfig } from 'tentactl';
+import { defineConfig } from '../src';
 
 export default defineConfig({
     org: "t128n",
@@ -50,7 +50,6 @@ export default defineConfig({
         ],
     },
     teams: {
-        items: [
-        ],
+        items: [],
     },
 });
