@@ -1,11 +1,11 @@
-import { defineConfig } from '../src';
+import { defineConfig } from 'tentactl';
 
 export default defineConfig({
     org: "t128n",
     repo: "tentactl",
     repository: {
         description: "A CLI tool to manage GitHub repositories with ease 🐙",
-        homepage: "https://github.com/t128n/tentactl",
+        homepage: "https://npmx.dev/package/tentactl",
         private: false,
         visibility: "public",
         has_issues: true,
@@ -42,6 +42,11 @@ export default defineConfig({
             { name: "bug", color: "d73a4a", description: "Something isn't working" },
             { name: "documentation", color: "0075ca", description: "Improvements or additions to documentation" },
             { name: "enhancement", color: "a2eeef", description: "New feature or request" },
+        ],
+    },
+    collaborators: {
+        items: [
+            { username: "t128n", permission: "admin" },
         ],
     },
     teams: {

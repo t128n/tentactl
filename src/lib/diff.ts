@@ -37,10 +37,11 @@ export function computeDiff(local: TentactlConfig, remote: TentactlConfig): stri
 
 /** Remove fields that are meaningful only locally and have no remote equivalent. */
 function withoutLocalOnly(config: TentactlConfig): TentactlConfig {
-    const { strict: _gs, labels, teams, rulesets, ...rest } = config;
+    const { strict: _gs, labels, collaborators, teams, rulesets, ...rest } = config;
     return {
         ...rest,
         ...(labels ? { labels: { items: labels.items } } : {}),
+        ...(collaborators ? { collaborators: { items: collaborators.items } } : {}),
         ...(teams ? { teams: { items: teams.items } } : {}),
         ...(rulesets ? { rulesets: { items: rulesets.items } } : {}),
     };

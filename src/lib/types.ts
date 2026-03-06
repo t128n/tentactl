@@ -9,15 +9,28 @@ export interface LabelConfig {
     description?: string;
 }
 
+export type RepositoryPermission = "pull" | "triage" | "push" | "maintain" | "admin";
+
+export interface CollaboratorConfig {
+    username: string;
+    permission: RepositoryPermission;
+}
+
 export interface TeamConfig {
     team_slug: string;
-    permission: "pull" | "triage" | "push" | "maintain" | "admin";
+    permission: RepositoryPermission;
 }
 
 export interface LabelsConfig {
     /** Delete labels from the repo that are not listed here. Default: false. */
     strict?: boolean;
     items: LabelConfig[];
+}
+
+export interface CollaboratorsConfig {
+    /** Remove direct collaborators from the repo that are not listed here. Default: false. */
+    strict?: boolean;
+    items: CollaboratorConfig[];
 }
 
 export interface TeamsConfig {
@@ -180,8 +193,9 @@ export interface InteractionLimitConfig {
 export interface TentactlConfig {
     /**
      * Global strict mode fallback. When true, anything not defined in this
-     * config (labels, teams, rulesets) will be deleted from the repository.
-     * Can be overridden per-section via `labels.strict` / `teams.strict` / `rulesets.strict`.
+     * config (labels, collaborators, teams, rulesets) will be deleted from the repository.
+     * Can be overridden per-section via
+     * `labels.strict` / `collaborators.strict` / `teams.strict` / `rulesets.strict`.
      * Default: false.
      */
     strict?: boolean;
@@ -208,6 +222,9 @@ export interface TentactlConfig {
 
     /** Issue labels. */
     labels?: LabelsConfig;
+
+    /** Direct user collaborators. */
+    collaborators?: CollaboratorsConfig;
 
     /** Team access. */
     teams?: TeamsConfig;

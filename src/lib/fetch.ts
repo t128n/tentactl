@@ -3,6 +3,7 @@ import { consola } from "consola";
 import type {
     TentactlConfig,
     LabelConfig,
+    CollaboratorConfig,
     TeamConfig,
     RulesetConfig,
     RulesetBypassActor,
@@ -11,6 +12,7 @@ import type {
     InteractionLimitConfig,
     InteractionLimit,
     InteractionLimitExpiry,
+    RepositoryPermission,
 } from "./types";
 
 /**
@@ -28,6 +30,7 @@ export async function fetchRemoteConfig(
         fetchRepository(octokit, org, repo, config),
         fetchTopics(octokit, org, repo, config),
         fetchLabels(octokit, org, repo, config),
+        fetchCollaborators(octokit, org, repo, config),
         fetchTeams(octokit, org, repo, config),
         fetchRulesets(octokit, org, repo, config),
         fetchEnvironments(octokit, org, repo, config),
@@ -220,6 +223,34 @@ async function fetchTeams(
         config.teams = { items };
     } catch (err: unknown) {
         consola.warn(`Could not fetch teams: ${formatError(err)}`);
+    }
+}
+
+async function fetchCollaborators(
+    octokit: Octokit,
+    org: string,
+    repo: string,
+    config: TentactlConfig,
+): Promise<void> {
+    try {
+        const collaborators = await octokit.paginate(octokit.rest.repos.listCollaborators, {
+            owner: org,
+            repo,
+            affiliation: "direct",
+            per_page: 100,
+        });
+
+        const items: CollaboratorConfig[] = collaborators
+            .map((collaborator) => {
+                const permission = resolveHighestPermission(collaborator.permissions);
+                if (!permission) return null;
+                return { username: collaborator.login, permission };
+            })
+            .filter((collaborator): collaborator is CollaboratorConfig => collaborator !== null);
+
+        config.collaborators = { items };
+    } catch (err: unknown) {
+        consola.warn(`Could not fetch collaborators: ${formatError(err)}`);
     }
 }
 
@@ -552,12 +583,11 @@ async function fetchInteractionLimit(
 // Helpers
 // ---------------------------------------------------------------------------
 
-type PermissionLevel = "pull" | "triage" | "push" | "maintain" | "admin";
-const PERMISSION_RANK: PermissionLevel[] = ["pull", "triage", "push", "maintain", "admin"];
+const PERMISSION_RANK: RepositoryPermission[] = ["pull", "triage", "push", "maintain", "admin"];
 
 function resolveHighestPermission(
     permissions: Record<string, boolean> | undefined,
-): PermissionLevel | null {
+): RepositoryPermission | null {
     if (!permissions) return "pull";
     for (const level of [...PERMISSION_RANK].reverse()) {
         if (permissions[level]) return level;

@@ -169,8 +169,15 @@ export default defineConfig({
 			{ name: "enhancement", color: "a2eeef", description: "New feature or request" },
 		],
 	},
+	collaborators: {
+		items: [
+			{ username: "octocat", permission: "push" },
+		],
+	},
 	teams: {
-		items: [],
+		items: [
+			{ team_slug: "platform", permission: "maintain" },
+		],
 	},
 });
 ```
@@ -187,6 +194,7 @@ The root config supports these fields:
 - `topics`: Repository topics
 - `branch_protection`: Branch protection for a specific branch
 - `labels`: Repository labels
+- `collaborators`: Direct user collaborators and their permissions
 - `teams`: Team permissions for the repository
 - `rulesets`: Repository rulesets
 - `environments`: Deployment environments
@@ -198,9 +206,18 @@ The root config supports these fields:
 Strict mode lets you remove managed items that are not present in your config.
 
 - `strict: true` applies strict mode globally
-- `labels.strict`, `teams.strict`, and `rulesets.strict` override the global setting per section
+- `labels.strict`, `collaborators.strict`, `teams.strict`, and `rulesets.strict` override the global setting per section
 
 When strict mode is enabled for a section, `tentactl` deletes items in GitHub that are not listed in that section of your config.
+
+## Access management
+
+Use `collaborators` for direct user access and `teams` for organization team access.
+
+- Supported permissions for both are `pull`, `triage`, `push`, `maintain`, and `admin`
+- `collaborators.items` uses `{ username, permission }`
+- `teams.items` uses `{ team_slug, permission }`
+- Set `collaborators.strict` or `teams.strict` to remove access entries not declared in config
 
 ## GitHub Enterprise Server
 

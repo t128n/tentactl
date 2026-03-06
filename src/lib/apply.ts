@@ -4,10 +4,10 @@ import { consola } from "consola";
 import type {
     TentactlConfig,
     LabelConfig,
+    CollaboratorConfig,
     TeamConfig,
     RulesetConfig,
     RulesetsConfig,
-    EnvironmentConfig,
     InteractionLimitConfig,
     CustomPropertyValue,
 } from "./types";
@@ -19,6 +19,7 @@ export async function applyConfig(octokit: Octokit, config: TentactlConfig): Pro
     await applyRepository(octokit, config);
     await applyBranchProtection(octokit, config);
     await applyLabels(octokit, config);
+    await applyCollaborators(octokit, config);
     await applyTeams(octokit, config);
     await applyRulesets(octokit, config);
     await applyEnvironments(octokit, config);
@@ -158,6 +159,71 @@ async function deleteUnlistedLabels(octokit: Octokit, org: string, repo: string,
         }
     } catch (err: unknown) {
         consola.error(`Failed to list existing labels: ${formatError(err)}`);
+    }
+}
+
+async function applyCollaborators(octokit: Octokit, config: TentactlConfig): Promise<void> {
+    const { org, repo, collaborators, strict: globalStrict } = config;
+
+    if (!collaborators) {
+        consola.debug("No collaborators to apply");
+        return;
+    }
+
+    const { items, strict: sectionStrict } = collaborators;
+    const isStrict = resolveStrict(globalStrict, sectionStrict);
+
+    for (const collaborator of items) {
+        try {
+            await octokit.rest.repos.addCollaborator({
+                owner: org,
+                repo,
+                username: collaborator.username,
+                permission: collaborator.permission,
+            });
+            consola.success(`Collaborator "${collaborator.username}" granted ${collaborator.permission} on ${org}/${repo}`);
+        } catch (err: unknown) {
+            consola.error(`Failed to set permissions for collaborator "${collaborator.username}": ${formatError(err)}`);
+        }
+    }
+
+    if (isStrict) {
+        await removeUnlistedCollaborators(octokit, org, repo, items);
+    }
+}
+
+async function removeUnlistedCollaborators(
+    octokit: Octokit,
+    org: string,
+    repo: string,
+    configuredCollaborators: CollaboratorConfig[],
+): Promise<void> {
+    const configuredUsernames = new Set(configuredCollaborators.map((collaborator) => collaborator.username));
+
+    try {
+        const existing = await octokit.paginate(octokit.rest.repos.listCollaborators, {
+            owner: org,
+            repo,
+            affiliation: "direct",
+            per_page: 100,
+        });
+
+        for (const collaborator of existing) {
+            if (!configuredUsernames.has(collaborator.login)) {
+                try {
+                    await octokit.rest.repos.removeCollaborator({
+                        owner: org,
+                        repo,
+                        username: collaborator.login,
+                    });
+                    consola.success(`Collaborator "${collaborator.login}" removed (strict mode)`);
+                } catch (err: unknown) {
+                    consola.error(`Failed to remove collaborator "${collaborator.login}": ${formatError(err)}`);
+                }
+            }
+        }
+    } catch (err: unknown) {
+        consola.error(`Failed to list existing collaborators: ${formatError(err)}`);
     }
 }
 

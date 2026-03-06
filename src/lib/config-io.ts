@@ -1,7 +1,7 @@
 import { resolve, dirname, basename } from "pathe";
 import { access, constants, writeFile } from "node:fs/promises";
 import { consola } from "consola";
-import type { TentactlConfig, LabelsConfig, TeamsConfig, RulesetsConfig } from "./types";
+import type { TentactlConfig } from "./types";
 
 export const DEFAULT_CONFIG_PATH = ".github/tentactl.config.ts";
 
@@ -106,6 +106,20 @@ export function serializeConfig(config: TentactlConfig): string {
                 parts.push(`description: ${JSON.stringify(label.description)}`);
             }
             lines.push(`            { ${parts.join(", ")} },`);
+        }
+        lines.push(`        ],`);
+        lines.push(`    },`);
+    }
+
+    // collaborators
+    if (config.collaborators) {
+        lines.push(`    collaborators: {`);
+        if (config.collaborators.strict !== undefined) {
+            lines.push(`        strict: ${config.collaborators.strict},`);
+        }
+        lines.push(`        items: [`);
+        for (const collaborator of config.collaborators.items) {
+            lines.push(`            { username: ${JSON.stringify(collaborator.username)}, permission: ${JSON.stringify(collaborator.permission)} },`);
         }
         lines.push(`        ],`);
         lines.push(`    },`);
