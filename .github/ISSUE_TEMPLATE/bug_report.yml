@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible problem with tentactl.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please share enough detail for us to reproduce it.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+      placeholder: Running `tentactl pull` fails with...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the exact commands and relevant config.
+      placeholder: |
+        1. Run `tentactl login`
+        2. Run `tentactl pull`
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Paste error messages, logs, or screenshots.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: tentactl version
+      placeholder: 0.0.2
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      placeholder: 22.x
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15 / Ubuntu 24.04 / Windows 11

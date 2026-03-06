@@ -5,6 +5,9 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/release.yml"
+      - "package.json"
+      - "pnpm-lock.yaml"
       - "src/**"
 
 jobs:
@@ -26,6 +29,10 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm test -- --run
 
       - run: pnpm build
 
