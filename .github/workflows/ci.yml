@@ -32,7 +32,7 @@ jobs:
 
       - name: Format
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: pnpm format --write
+        run: pnpm format
 
       - name: Commit formatting changes
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
