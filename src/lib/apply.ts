@@ -185,6 +185,13 @@ async function applyCollaborators(octokit: Octokit, config: TentactlConfig): Pro
 	const isStrict = resolveStrict(globalStrict, sectionStrict);
 
 	for (const collaborator of items) {
+		if (collaborator.username === org) {
+			consola.warn(
+				`Skipping collaborator "${collaborator.username}": repository owner already has admin access`,
+			);
+			continue;
+		}
+
 		try {
 			await octokit.rest.repos.addCollaborator({
 				owner: org,

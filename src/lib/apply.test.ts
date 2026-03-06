@@ -1,4 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
+
+const mockedWarn = vi.hoisted(() => vi.fn());
+
+vi.mock("consola", () => ({
+	consola: {
+		debug: vi.fn(),
+		success: vi.fn(),
+		error: vi.fn(),
+		warn: mockedWarn,
+	},
+}));
+
 import { applyConfig } from "./apply";
 
 describe("applyConfig", () => {
@@ -147,5 +159,29 @@ describe("applyConfig", () => {
 			repo: "platform",
 			team_slug: "ops",
 		});
+	});
+
+	it("skips collaborator entries that match the repository owner", async () => {
+		const addCollaborator = vi.fn().mockResolvedValue(undefined);
+
+		const octokit = {
+			rest: {
+				repos: { addCollaborator },
+			},
+			request: vi.fn().mockResolvedValue(undefined),
+		};
+
+		await applyConfig(octokit as never, {
+			org: "acme",
+			repo: "platform",
+			collaborators: {
+				items: [{ username: "acme", permission: "admin" }],
+			},
+		});
+
+		expect(addCollaborator).not.toHaveBeenCalled();
+		expect(mockedWarn).toHaveBeenCalledWith(
+			'Skipping collaborator "acme": repository owner already has admin access',
+		);
 	});
 });

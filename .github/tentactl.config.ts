@@ -31,10 +31,15 @@ export default defineConfig({
 		branch: "main",
 		required_status_checks: {
 			strict: true,
-			contexts: [],
+			contexts: ["CI / verify"],
 		},
 		enforce_admins: true,
-		required_pull_request_reviews: null,
+		required_pull_request_reviews: {
+			required_approving_review_count: 1,
+			dismiss_stale_reviews: true,
+			require_last_push_approval: true,
+		},
+		required_conversation_resolution: true,
 		restrictions: null,
 	},
 	labels: {
@@ -49,7 +54,7 @@ export default defineConfig({
 		],
 	},
 	collaborators: {
-		items: [{ username: "t128n", permission: "admin" }],
+		items: [],
 	},
 	teams: {
 		items: [],
