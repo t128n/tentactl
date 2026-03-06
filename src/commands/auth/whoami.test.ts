@@ -1,37 +1,39 @@
 import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-    readTokenFromEnvLocal: vi.fn(),
-    validateToken: vi.fn(),
-    info: vi.fn(),
+	readTokenFromEnvLocal: vi.fn(),
+	validateToken: vi.fn(),
+	info: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
-    readTokenFromEnvLocal: mocks.readTokenFromEnvLocal,
-    validateToken: mocks.validateToken,
+	readTokenFromEnvLocal: mocks.readTokenFromEnvLocal,
+	validateToken: mocks.validateToken,
 }));
 
 vi.mock("consola", () => ({
-    consola: { info: mocks.info },
+	consola: { info: mocks.info },
 }));
 
 import { whoami } from "./whoami";
 
 describe("whoami", () => {
-    it("reports when no token is available", async () => {
-        mocks.readTokenFromEnvLocal.mockResolvedValue(undefined);
+	it("reports when no token is available", async () => {
+		mocks.readTokenFromEnvLocal.mockResolvedValue(undefined);
 
-        await whoami();
+		await whoami();
 
-        expect(mocks.info).toHaveBeenCalledWith("Not logged in (no GH_TOKEN found in environment or .env.local)");
-    });
+		expect(mocks.info).toHaveBeenCalledWith(
+			"Not logged in (no GH_TOKEN found in environment or .env.local)",
+		);
+	});
 
-    it("validates the discovered token", async () => {
-        mocks.readTokenFromEnvLocal.mockResolvedValue("stored-token");
+	it("validates the discovered token", async () => {
+		mocks.readTokenFromEnvLocal.mockResolvedValue("stored-token");
 
-        await whoami();
+		await whoami();
 
-        expect(mocks.info).toHaveBeenCalledWith("Token source: .env.local");
-        expect(mocks.validateToken).toHaveBeenCalledWith("github.com", "stored-token");
-    });
+		expect(mocks.info).toHaveBeenCalledWith("Token source: .env.local");
+		expect(mocks.validateToken).toHaveBeenCalledWith("github.com", "stored-token");
+	});
 });

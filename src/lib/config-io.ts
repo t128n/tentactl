@@ -10,9 +10,7 @@ export const DEFAULT_CONFIG_PATH = ".github/tentactl.config.ts";
 // ---------------------------------------------------------------------------
 
 export function resolveConfigPath(input?: string): string {
-    return input
-        ? resolve(process.cwd(), input)
-        : resolve(process.cwd(), DEFAULT_CONFIG_PATH);
+	return input ? resolve(process.cwd(), input) : resolve(process.cwd(), DEFAULT_CONFIG_PATH);
 }
 
 /**
@@ -21,12 +19,14 @@ export function resolveConfigPath(input?: string): string {
  * Otherwise the root is the directory containing the config file.
  */
 export function resolveProjectRoot(configPath: string): string {
-    const dir = dirname(configPath);
-    return basename(dir) === ".github" ? dirname(dir) : dir;
+	const dir = dirname(configPath);
+	return basename(dir) === ".github" ? dirname(dir) : dir;
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {
-    return access(filePath, constants.F_OK).then(() => true).catch(() => false);
+	return access(filePath, constants.F_OK)
+		.then(() => true)
+		.catch(() => false);
 }
 
 // ---------------------------------------------------------------------------
@@ -34,19 +34,19 @@ export async function fileExists(filePath: string): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 export async function loadConfig(configPath: string): Promise<TentactlConfig> {
-    const exists = await fileExists(configPath);
-    if (!exists) {
-        consola.error(`Config file not found: ${configPath}`);
-        process.exit(1);
-    }
+	const exists = await fileExists(configPath);
+	if (!exists) {
+		consola.error(`Config file not found: ${configPath}`);
+		process.exit(1);
+	}
 
-    const mod = await import(configPath).catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : String(err);
-        consola.error(`Failed to load config from ${configPath}: ${msg}`);
-        process.exit(1);
-    });
+	const mod = await import(configPath).catch((err: unknown) => {
+		const msg = err instanceof Error ? err.message : String(err);
+		consola.error(`Failed to load config from ${configPath}: ${msg}`);
+		process.exit(1);
+	});
 
-    return (mod.default ?? mod) as TentactlConfig;
+	return (mod.default ?? mod) as TentactlConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -55,156 +55,165 @@ export async function loadConfig(configPath: string): Promise<TentactlConfig> {
 
 /** Serialize a TentactlConfig back into a valid tentactl.config.ts file string. */
 export function serializeConfig(config: TentactlConfig): string {
-    const lines: string[] = [
-        `import { defineConfig } from 'tentactl';`,
-        ``,
-        `export default defineConfig({`,
-    ];
+	const lines: string[] = [
+		`import { defineConfig } from 'tentactl';`,
+		``,
+		`export default defineConfig({`,
+	];
 
-    if (config.host && config.host !== "github.com") {
-        lines.push(`    host: ${JSON.stringify(config.host)},`);
-    }
+	if (config.host && config.host !== "github.com") {
+		lines.push(`    host: ${JSON.stringify(config.host)},`);
+	}
 
-    lines.push(`    org: ${JSON.stringify(config.org)},`);
-    lines.push(`    repo: ${JSON.stringify(config.repo)},`);
+	lines.push(`    org: ${JSON.stringify(config.org)},`);
+	lines.push(`    repo: ${JSON.stringify(config.repo)},`);
 
-    if (config.strict !== undefined) {
-        lines.push(`    strict: ${config.strict},`);
-    }
+	if (config.strict !== undefined) {
+		lines.push(`    strict: ${config.strict},`);
+	}
 
-    // repository
-    if (config.repository && Object.keys(config.repository).length > 0) {
-        lines.push(`    repository: {`);
-        for (const [key, value] of Object.entries(config.repository)) {
-            if (value !== undefined) {
-                lines.push(`        ${key}: ${JSON.stringify(value)},`);
-            }
-        }
-        lines.push(`    },`);
-    }
+	// repository
+	if (config.repository && Object.keys(config.repository).length > 0) {
+		lines.push(`    repository: {`);
+		for (const [key, value] of Object.entries(config.repository)) {
+			if (value !== undefined) {
+				lines.push(`        ${key}: ${JSON.stringify(value)},`);
+			}
+		}
+		lines.push(`    },`);
+	}
 
-    // topics
-    if (config.topics !== undefined) {
-        lines.push(`    topics: ${JSON.stringify(config.topics)},`);
-    }
+	// topics
+	if (config.topics !== undefined) {
+		lines.push(`    topics: ${JSON.stringify(config.topics)},`);
+	}
 
-    // branch_protection
-    if (config.branch_protection) {
-        lines.push(`    branch_protection: ${serializeObject(config.branch_protection, 1)},`);
-    }
+	// branch_protection
+	if (config.branch_protection) {
+		lines.push(`    branch_protection: ${serializeObject(config.branch_protection, 1)},`);
+	}
 
-    // labels
-    if (config.labels) {
-        lines.push(`    labels: {`);
-        if (config.labels.strict !== undefined) {
-            lines.push(`        strict: ${config.labels.strict},`);
-        }
-        lines.push(`        items: [`);
-        for (const label of config.labels.items) {
-            const parts: string[] = [`name: ${JSON.stringify(label.name)}`, `color: ${JSON.stringify(label.color)}`];
-            if (label.description !== undefined) {
-                parts.push(`description: ${JSON.stringify(label.description)}`);
-            }
-            lines.push(`            { ${parts.join(", ")} },`);
-        }
-        lines.push(`        ],`);
-        lines.push(`    },`);
-    }
+	// labels
+	if (config.labels) {
+		lines.push(`    labels: {`);
+		if (config.labels.strict !== undefined) {
+			lines.push(`        strict: ${config.labels.strict},`);
+		}
+		lines.push(`        items: [`);
+		for (const label of config.labels.items) {
+			const parts: string[] = [
+				`name: ${JSON.stringify(label.name)}`,
+				`color: ${JSON.stringify(label.color)}`,
+			];
+			if (label.description !== undefined) {
+				parts.push(`description: ${JSON.stringify(label.description)}`);
+			}
+			lines.push(`            { ${parts.join(", ")} },`);
+		}
+		lines.push(`        ],`);
+		lines.push(`    },`);
+	}
 
-    // collaborators
-    if (config.collaborators) {
-        lines.push(`    collaborators: {`);
-        if (config.collaborators.strict !== undefined) {
-            lines.push(`        strict: ${config.collaborators.strict},`);
-        }
-        lines.push(`        items: [`);
-        for (const collaborator of config.collaborators.items) {
-            lines.push(`            { username: ${JSON.stringify(collaborator.username)}, permission: ${JSON.stringify(collaborator.permission)} },`);
-        }
-        lines.push(`        ],`);
-        lines.push(`    },`);
-    }
+	// collaborators
+	if (config.collaborators) {
+		lines.push(`    collaborators: {`);
+		if (config.collaborators.strict !== undefined) {
+			lines.push(`        strict: ${config.collaborators.strict},`);
+		}
+		lines.push(`        items: [`);
+		for (const collaborator of config.collaborators.items) {
+			lines.push(
+				`            { username: ${JSON.stringify(collaborator.username)}, permission: ${JSON.stringify(collaborator.permission)} },`,
+			);
+		}
+		lines.push(`        ],`);
+		lines.push(`    },`);
+	}
 
-    // teams
-    if (config.teams) {
-        lines.push(`    teams: {`);
-        if (config.teams.strict !== undefined) {
-            lines.push(`        strict: ${config.teams.strict},`);
-        }
-        lines.push(`        items: [`);
-        for (const team of config.teams.items) {
-            lines.push(`            { team_slug: ${JSON.stringify(team.team_slug)}, permission: ${JSON.stringify(team.permission)} },`);
-        }
-        lines.push(`        ],`);
-        lines.push(`    },`);
-    }
+	// teams
+	if (config.teams) {
+		lines.push(`    teams: {`);
+		if (config.teams.strict !== undefined) {
+			lines.push(`        strict: ${config.teams.strict},`);
+		}
+		lines.push(`        items: [`);
+		for (const team of config.teams.items) {
+			lines.push(
+				`            { team_slug: ${JSON.stringify(team.team_slug)}, permission: ${JSON.stringify(team.permission)} },`,
+			);
+		}
+		lines.push(`        ],`);
+		lines.push(`    },`);
+	}
 
-    // rulesets
-    if (config.rulesets) {
-        lines.push(`    rulesets: {`);
-        if (config.rulesets.strict !== undefined) {
-            lines.push(`        strict: ${config.rulesets.strict},`);
-        }
-        lines.push(`        items: [`);
-        for (const ruleset of config.rulesets.items) {
-            lines.push(`            ${serializeObject(ruleset, 3)},`);
-        }
-        lines.push(`        ],`);
-        lines.push(`    },`);
-    }
+	// rulesets
+	if (config.rulesets) {
+		lines.push(`    rulesets: {`);
+		if (config.rulesets.strict !== undefined) {
+			lines.push(`        strict: ${config.rulesets.strict},`);
+		}
+		lines.push(`        items: [`);
+		for (const ruleset of config.rulesets.items) {
+			lines.push(`            ${serializeObject(ruleset, 3)},`);
+		}
+		lines.push(`        ],`);
+		lines.push(`    },`);
+	}
 
-    // environments
-    if (config.environments && config.environments.length > 0) {
-        lines.push(`    environments: [`);
-        for (const env of config.environments) {
-            lines.push(`        ${serializeObject(env, 2)},`);
-        }
-        lines.push(`    ],`);
-    }
+	// environments
+	if (config.environments && config.environments.length > 0) {
+		lines.push(`    environments: [`);
+		for (const env of config.environments) {
+			lines.push(`        ${serializeObject(env, 2)},`);
+		}
+		lines.push(`    ],`);
+	}
 
-    // custom_properties
-    if (config.custom_properties && Object.keys(config.custom_properties).length > 0) {
-        lines.push(`    custom_properties: {`);
-        for (const [key, value] of Object.entries(config.custom_properties)) {
-            lines.push(`        ${JSON.stringify(key)}: ${JSON.stringify(value)},`);
-        }
-        lines.push(`    },`);
-    }
+	// custom_properties
+	if (config.custom_properties && Object.keys(config.custom_properties).length > 0) {
+		lines.push(`    custom_properties: {`);
+		for (const [key, value] of Object.entries(config.custom_properties)) {
+			lines.push(`        ${JSON.stringify(key)}: ${JSON.stringify(value)},`);
+		}
+		lines.push(`    },`);
+	}
 
-    // interaction_limit
-    if ("interaction_limit" in config) {
-        if (config.interaction_limit === null) {
-            lines.push(`    interaction_limit: null,`);
-        } else if (config.interaction_limit !== undefined) {
-            lines.push(`    interaction_limit: ${serializeObject(config.interaction_limit, 1)},`);
-        }
-    }
+	// interaction_limit
+	if ("interaction_limit" in config) {
+		if (config.interaction_limit === null) {
+			lines.push(`    interaction_limit: null,`);
+		} else if (config.interaction_limit !== undefined) {
+			lines.push(`    interaction_limit: ${serializeObject(config.interaction_limit, 1)},`);
+		}
+	}
 
-    lines.push(`});`);
-    lines.push(``);
+	lines.push(`});`);
+	lines.push(``);
 
-    return lines.join("\n");
+	return lines.join("\n");
 }
 
 /** Recursively serialize a plain object with indentation. */
 function serializeObject(obj: unknown, depth: number): string {
-    if (obj === null) return "null";
-    if (Array.isArray(obj)) {
-        if (obj.length === 0) return "[]";
-        const indent = "    ".repeat(depth + 1);
-        const closing = "    ".repeat(depth);
-        const items = obj.map((item) => `${indent}${serializeObject(item, depth + 1)}`);
-        return `[\n${items.join(",\n")},\n${closing}]`;
-    }
-    if (typeof obj === "object") {
-        const entries = Object.entries(obj as Record<string, unknown>).filter(([, v]) => v !== undefined);
-        if (entries.length === 0) return "{}";
-        const indent = "    ".repeat(depth + 1);
-        const closing = "    ".repeat(depth);
-        const parts = entries.map(([k, v]) => `${indent}${k}: ${serializeObject(v, depth + 1)}`);
-        return `{\n${parts.join(",\n")},\n${closing}}`;
-    }
-    return JSON.stringify(obj);
+	if (obj === null) return "null";
+	if (Array.isArray(obj)) {
+		if (obj.length === 0) return "[]";
+		const indent = "    ".repeat(depth + 1);
+		const closing = "    ".repeat(depth);
+		const items = obj.map((item) => `${indent}${serializeObject(item, depth + 1)}`);
+		return `[\n${items.join(",\n")},\n${closing}]`;
+	}
+	if (typeof obj === "object") {
+		const entries = Object.entries(obj as Record<string, unknown>).filter(
+			([, v]) => v !== undefined,
+		);
+		if (entries.length === 0) return "{}";
+		const indent = "    ".repeat(depth + 1);
+		const closing = "    ".repeat(depth);
+		const parts = entries.map(([k, v]) => `${indent}${k}: ${serializeObject(v, depth + 1)}`);
+		return `{\n${parts.join(",\n")},\n${closing}}`;
+	}
+	return JSON.stringify(obj);
 }
 
 // ---------------------------------------------------------------------------
@@ -212,6 +221,6 @@ function serializeObject(obj: unknown, depth: number): string {
 // ---------------------------------------------------------------------------
 
 export async function writeConfig(configPath: string, config: TentactlConfig): Promise<void> {
-    const content = serializeConfig(config);
-    await writeFile(configPath, content, "utf-8");
+	const content = serializeConfig(config);
+	await writeFile(configPath, content, "utf-8");
 }

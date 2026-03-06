@@ -170,14 +170,10 @@ export default defineConfig({
 		],
 	},
 	collaborators: {
-		items: [
-			{ username: "octocat", permission: "push" },
-		],
+		items: [{ username: "octocat", permission: "push" }],
 	},
 	teams: {
-		items: [
-			{ team_slug: "platform", permission: "maintain" },
-		],
+		items: [{ team_slug: "platform", permission: "maintain" }],
 	},
 });
 ```
